@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ghost Redirector Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00ff9f;
+    }
+    form {
+      background: #222;
+      padding: 1rem;
+      border-radius: 8px;
+      width: 300px;
+    }
+    label, input, button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+    input {
+      padding: 0.5rem;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background: #00ff9f;
+      border: none;
+      padding: 0.7rem;
+      color: #000;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ghost Redirector Admin</h1>
+  <form action="/add" method="POST">
+    <label>Code (e.g. ai, ms, chat)</label>
+    <input type="text" name="code" required>
+    <label>URL to redirect to</label>
+    <input type="url" name="url" required>
+    <button type="submit">Add Link</button>
+  </form>
+</body>
+</html>
 
