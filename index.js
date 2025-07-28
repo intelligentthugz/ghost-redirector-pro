@@ -1,49 +1,47 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const express = require("express");
+const bodyParser = require("body-parser");
+const fs = require("fs-extra");
+const path = require("path");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DATA_FILE = "./links.json";
 
-app.use(express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Load or create links.json
-let links = {};
-const filePath = path.join(__dirname, 'links.json');
-if (fs.existsSync(filePath)) {
-  links = JSON.parse(fs.readFileSync(filePath));
-} else {
-  fs.writeFileSync(filePath, JSON.stringify(links));
-}
+// Load links
+let links = fs.existsSync(DATA_FILE) ? fs.readJsonSync(DATA_FILE) : {};
 
-// Admin Panel (with static HTML)
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+// Admin Panel
+app.get("/admin", (req, res) => {
+  res.render("admin", { links });
 });
 
-// Add a redirect link
-app.post('/add', (req, res) => {
+// Add Redirect
+app.post("/add", async (req, res) => {
   const { code, url } = req.body;
-  if (!code || !url) {
-    return res.status(400).send('Code and URL are required.');
-  }
+  if (!code || !url) return res.status(400).send("Missing code or URL");
+
   links[code] = url;
-  fs.writeFileSync(filePath, JSON.stringify(links, null, 2));
-  res.send(`Redirect added: /goto/${code}`);
+  await fs.writeJson(DATA_FILE, links, { spaces: 2 });
+
+  res.redirect("/admin");
 });
 
-// Handle redirection
-app.get('/goto/:code', (req, res) => {
+// Handle Redirect
+app.get("/goto/:code", (req, res) => {
   const code = req.params.code;
-  const url = links[code];
-  if (url) {
-    res.redirect(url);
+  const target = links[code];
+  if (target) {
+    res.redirect(target);
   } else {
-    res.status(404).send('Redirect code not found.');
+    res.status(404).send("Not Found");
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Ghost Redirector PRO+ is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
