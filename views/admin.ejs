@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Ghost Redirector Admin</title>
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <h1>Ghost Redirector Admin</h1>
-  <form action="/add" method="get">
-    <input type="text" name="code" placeholder="Code (e.g. ms)" required />
-    <input type="text" name="url" placeholder="Target URL" required />
-    <button type="submit">Add Link</button>
-  </form>
-  <h2>All Links</h2>
-  <ul>
-    <% for (let code in links) { %>
-      <li><strong><%= code %></strong> → <%= links[code] %></li>
-    <% } %>
-  </ul>
+  <div class="container">
+    <h1>Ghost Redirector Admin</h1>
+    <form action="/add" method="POST">
+      <input type="text" name="code" placeholder="Short Code (e.g. ms)" required />
+      <input type="text" name="url" placeholder="Full URL (e.g. https://microsoft.com)" required />
+      <button type="submit">Add Redirect</button>
+    </form>
+
+    <h2>All Redirects</h2>
+    <ul>
+      <% Object.keys(links).forEach(code => { %>
+        <li>
+          <strong><%= code %></strong> → 
+          <a href="/goto/<%= code %>" target="_blank">/goto/<%= code %></a>
+          → <%= links[code] %>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
 </body>
 </html>
