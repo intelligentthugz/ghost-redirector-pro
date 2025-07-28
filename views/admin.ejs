@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ghost Redirector Admin</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <h1>Ghost Redirector Admin</h1>
+  <form action="/add" method="get">
+    <input type="text" name="code" placeholder="Code (e.g. ms)" required />
+    <input type="text" name="url" placeholder="Target URL" required />
+    <button type="submit">Add Link</button>
+  </form>
+  <h2>All Links</h2>
+  <ul>
+    <% for (let code in links) { %>
+      <li><strong><%= code %></strong> → <%= links[code] %></li>
+    <% } %>
+  </ul>
+</body>
+</html>
