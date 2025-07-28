@@ -4,46 +4,46 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Load links from JSON
+// Load or create links.json
 let links = {};
-const linksFile = path.join(__dirname, 'links.json');
-if (fs.existsSync(linksFile)) {
-  links = JSON.parse(fs.readFileSync(linksFile));
+const filePath = path.join(__dirname, 'links.json');
+if (fs.existsSync(filePath)) {
+  links = JSON.parse(fs.readFileSync(filePath));
+} else {
+  fs.writeFileSync(filePath, JSON.stringify(links));
 }
 
-// Admin panel (secret)
+// Admin Panel (with static HTML)
 app.get('/admin', (req, res) => {
-  res.render('admin', { links });
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Add new redirect link
-app.get('/add', (req, res) => {
-  const { code, url } = req.query;
-  if (!code || !url) return res.send('Missing code or URL');
+// Add a redirect link
+app.post('/add', (req, res) => {
+  const { code, url } = req.body;
+  if (!code || !url) {
+    return res.status(400).send('Code and URL are required.');
+  }
   links[code] = url;
-  fs.writeFileSync(linksFile, JSON.stringify(links, null, 2));
-  res.send(`Added link: /goto/${code}`);
+  fs.writeFileSync(filePath, JSON.stringify(links, null, 2));
+  res.send(`Redirect added: /goto/${code}`);
 });
 
-// Redirect logic
+// Handle redirection
 app.get('/goto/:code', (req, res) => {
-  const dest = links[req.params.code];
-  if (!dest) return res.status(404).send('Not found');
-  res.render('cloak', { url: dest });
-});
-
-// Root
-app.get('/', (req, res) => {
-  res.redirect('https://google.com'); // fallback
+  const code = req.params.code;
+  const url = links[code];
+  if (url) {
+    res.redirect(url);
+  } else {
+    res.status(404).send('Redirect code not found.');
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Running on port ${PORT}`);
+  console.log(`Ghost Redirector PRO+ is running on port ${PORT}`);
 });
